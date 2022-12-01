@@ -1,0 +1,19 @@
+{% include 'header.html' %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Published at</th>
+    </tr>
+    <div><a href="article-add">Add New</a></div>
+    {% for article in articles %}
+    <tr>
+        <td>
+            <a href="details/{{article.id}}">{{article.title}}</a>
+        </td>
+        <td>{{article.publication_date}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

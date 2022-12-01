@@ -1,0 +1,11 @@
+{% include 'header.html' %}
+
+{% block content %}
+    <div>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ article_form }}
+            <input type="submit" value="post">
+        </form>
+    </div>
+{% endblock %}
