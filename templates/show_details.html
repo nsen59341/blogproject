@@ -2,50 +2,82 @@
 
 {% block content %}
 
-    <div class="article-single" data-id="{{article.id}}">
-        <h2>{{article.title}}</h2>
-        <p><small>by {{article.author}} on {{article.publication_date}}</small></p>
-        <br>
-        <div class="excerpt">
-            {{ article.body | slice:":20" | add:" " }}
-            <a href="javascript:void(0);" class="more_info">more...</a>
+<div class="row align-items-top">
+    <div class="col-lg-12">
+        <div class="card article-single" data-id="{{article.id}}">
+        <div class="card-header text-left">
+            <h4>{{article.title}}</h4>
+            <p><small>by {{article.author}} on {{article.publication_date}}</small></p>
         </div>
-        <div class="details" style="display:none;">
-            {{ article.body }}
-            <br><a href="javascript:void(0);" class="less_info">less...</a>
+
+        <div class="card-body">
+
+                {% if article.body.html|safe|length > 500 %}
+                    <div class="excerpt">
+                            {{ article.body.html | safe | slice:":500" | add:" " }}
+                            <a href="javascript:void(0);" class="more_info">more...</a>
+                    </div>
+
+                    <div class="details" style="display:none;">
+                        {{ article.body.html | safe }}
+                        <br><a href="javascript:void(0);" class="less_info">less...</a>
+                    </div>
+                {% else %}
+                 <div class="">
+                    {{ article.body.html | safe }}
+                 </div>
+                {% endif %}
+
+            </div>
+
+
+
+        </div>
+        <div class="card-footer">
+
+          <h5 class="card-title left">Comments:</h5>
+            <div class="container">
+                <form class="row g-3 comment-form form-inline" action="/add-comment/" method="post">
+                    {% csrf_token %}
+                    {{ comment_form }}
+                    <button type="submit" class="btn btn-primary commnt text-center">comment</button>
+                </form>
+            </div>
+            <br>
+            <div class="card">
+                <div class="card-body">
+                  {% for comment in comments %}
+                  <span class="card-title">{{comment.title}}</span><br>
+                  <small>{{comment.author}} - {{comment.publication_date}}</small>
+                    <div class="main_cont">
+                    {% if comment.body.html|safe|length > 100 %}
+                        <div class="comm_excerpt_{{comment.id}}">
+                            {{comment.body.html | safe | slice:":100" | add:" "}}
+                            <a href="javascript:void(0);" data-id="{{comment.id}}" class="comm_more">more...</a>
+                        </div>
+
+                        <div class="comm_details_{{comment.id}}" style="display:none;">
+                            {{comment.body.html | safe}}
+                            <a href="javascript:void(0);" data-id="{{comment.id}}" class="comm_less">less...</a>
+                        </div>
+                    {% else %}
+                        <div>{{comment.body.html | safe}}</div>
+                    {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
 {% endblock %}
 
-<div class="comment-sec">
-    <h3>Comments:</h3> <br>
-    <form action="/add-comment/" method="post">
-        {% csrf_token %}
-<!--        <input type="hidden" name="article_id" value="{{ article.id }}">-->
-        {{ comment_form }}
-        <input type="submit" value="POST">
-    </form>
-    <br>
-
-    <div>
-        {% for comment in comments %}
-        <div>
-            <h4>{{comment.title}}</h4>
-            <small>{{comment.author}} - {{comment.publication_date}}</small>
-            <p>{{comment.body}}</p>
-        </div>
-        {% endfor %}
-    </div>
-
-
-</div>
 
 
 <!--{% load static %}-->
 <!--<script type="text/javascript" src="{% static 'js/show_details.js' %}"></script>-->
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 
 <script>
 
@@ -58,14 +90,30 @@ $(".less_info").on("click", function() {
     $(".excerpt").show();
 });
 
-$(document).ready(function() {
-    let id = $(".article-single").data('id');
-    console.log('id '+id);
-    $("#id_article option[value="+id+"]").prop("selected", true);
-    $("#id_article").hide();
-    $("#id_article").prev().hide();
+$(".comm_more").on("click", function() {
+    var id = $(this).data('id');
+    $(".comm_excerpt_"+id).hide();
+    $(".comm_details_"+id).show();
+});
+$(".comm_less").on("click", function() {
+    var id = $(this).data('id');
+    $(".comm_details_"+id).hide();
+    $(".comm_excerpt_"+id).show();
 });
 
+$(document).ready(function() {
+     let id = $(".article-single").data('id');
+     $("#id_article option[value="+id+"]").prop("selected", true);
+     $("#id_article").hide();
+     $("#id_article").prev().hide();
+     $("#id_publication_date").hide();
+     $("#id_publication_date").prev().hide();
+     $(".comment-form div").addClass('col-md-3');
+     $(".comment-form .django-quill-widget-container, .comment-form .django-quill-widget-container div").removeClass('col-md-3').addClass('col-md-10');
+     $(".comment-form .django-quill-widget-container").parent().removeClass('col-md-3').addClass('col-md-10');
+     $(".comment-form label").addClass('form-label');
+     $(".comment-form input, .comment-form textarea").addClass('form-control');
+});
 
 
 

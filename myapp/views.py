@@ -8,6 +8,7 @@ from rest_framework.renderers import JSONRenderer
 from django.utils.six import BytesIO
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from datetime import datetime
 
 # Create your views here.
 
@@ -18,23 +19,36 @@ def testview(request):
 def articleaddview(request):
     if request.method == 'GET':
         article_form = ArticleForm()
-        return render(request, 'addarticle.html', {'article_form': article_form})
+        return render(request, 'addarticle.html', {'article_form': article_form.as_div()})
+
     else:
         data = request.POST
+        article_form = ArticleForm(request.POST)
+        if article_form.is_valid():
+            article_form.cleaned_data
+            article = Article()
+            article.title = data['title']
+            article.author = data['author']
+            article.body = data['body']
+            article.publication_date = datetime.today()
+            article.save()
+            return HttpResponseRedirect('/')
+        else:
+            raise Exception("Form is not valid!");
         # print(data)
-        article = Article()
-        article.title = data['title']
-        article.author = data['author']
-        article.body = data['body']
-        article.publication_date = data['publication_date']
-        article.save()
-        return HttpResponseRedirect('')
+        # article = Article()
+        # article.title = data['title']
+        # article.author = data['author']
+        # article.body = data['body']
+        # article.publication_date = data['publication_date']
+        # article.save()
+
 
 def articleshow(request, id=1):
     comment_form = CommentForm()
     article = Article.objects.get(id=id)
     comments = Comment.objects.filter(article=id)
-    return render(request, 'show_details.html', {'article': article, 'comments': comments , 'comment_form': comment_form})
+    return render(request, 'show_details.html', {'article': article, 'comments': comments , 'comment_form': comment_form.as_div()})
 
 def commentaddview(request):
     data = request.POST

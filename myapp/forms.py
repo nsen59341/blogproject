@@ -13,7 +13,7 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         # exclude = ['article']
-        fields = "__all__"
-        widgets = {
-            'publication_date': forms.DateInput(attrs={'type': 'date'})
-        }
+        fields = ['title', 'author', 'body', 'article']
+        # widgets = {
+        #     'publication_date': forms.DateInput(attrs={'type': 'date'})
+        # }
